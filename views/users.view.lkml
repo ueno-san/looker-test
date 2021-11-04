@@ -7,6 +7,11 @@ view: users {
     primary_key: yes
   }
 
+  dimension: first_name {
+    type: string
+    sql: ${TABLE}.first_name ;;
+  }
+
   measure:count_user {
     type: count
   }
