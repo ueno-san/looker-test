@@ -12,4 +12,3 @@ view: users {
   }
 
 }
-explore: users {}
