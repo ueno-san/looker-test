@@ -41,6 +41,7 @@ view: inventory_items {
   }
 
   dimension: product_department {
+    group_label: "プロダクト"
     label: "プロダクト・部門"
     type: string
     sql: ${TABLE}.product_department ;;
@@ -58,6 +59,7 @@ view: inventory_items {
   }
 
   dimension: product_name {
+    group_label: "プロダクト"
     label: "プロダクト名"
     type: string
     sql: ${TABLE}.product_name ;;
@@ -70,6 +72,7 @@ view: inventory_items {
   }
 
   dimension: product_sku {
+    group_label: "プロダクト"
     label: "プロダクトSKU"
     type: string
     sql: ${TABLE}.product_sku ;;

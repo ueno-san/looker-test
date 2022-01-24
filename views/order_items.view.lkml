@@ -29,7 +29,7 @@
     # label: "受注"
     type: time
     timeframes: [
-      # raw,
+      raw,
       time,
       date,
       week,
@@ -63,6 +63,7 @@
   }
 
   dimension: order_id {
+    view_label: "inventory_items"
     label: "オーダーID"
     type: number
     sql: ${TABLE}.order_id ;;
@@ -130,6 +131,14 @@
     # value_format_name: yen_0
     drill_fields: [products.brand,products.category,created_date,users.id]
   }
+
+  # measure: average_revenue_per_user {
+  #   type: number
+  #   sql: ${total_revenue}/${users.count_user} ;;
+  #   value_format_name: decimal_1
+  # }
+
+
 
   parameter: select_timeframe {
     type: string
