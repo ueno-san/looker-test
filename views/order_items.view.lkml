@@ -39,6 +39,7 @@
       year
     ]
     sql: ${TABLE}.created_at ;;
+    convert_tz: yes
   }
 
   dimension_group: delivered {

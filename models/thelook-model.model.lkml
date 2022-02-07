@@ -29,7 +29,7 @@ explore: order_items {
   # }
   label: "(1) オーダー、アイテム、ユーザー関連"
   view_label: "オーダー"
-  sql_always_where: ${order_items.status}="Complete" ;;
+  sql_always_where: ${order_items.status}="Complete" and {%condition users.user_name_filter%}${users.name}{% endcondition %} ;;
 # always_filter: {{% conditon }}
   join: users {
     view_label: "ユーザー"
