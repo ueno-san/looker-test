@@ -34,6 +34,8 @@ parameter: par_current_dt {
     ;;
   }
 
+
+
   measure:count_user {
     type: count_distinct
     sql:${id} ;;
