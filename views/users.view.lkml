@@ -7,6 +7,26 @@ view: users {
     primary_key: yes
   }
 
+  dimension: current_dt {
+    type: date
+    sql: current_date() ;;
+  }
+
+parameter: par_current_dt {
+  type: string
+  allowed_value: {
+    label: "最新月"
+    value: "{{current_dt._value}}"
+  }
+  default_value: "{{current_dt._value}}"
+}
+
+  dimension: name {
+    # label: "{% if users.current_dt._value = '2022-01-28' %}today{% else %}yesterday{% endif %}"
+    type: string
+    sql: ${TABLE}.name ;;
+  }
+
   dimension: test_for_jinjer {
     type: string
     sql: case when ${id} is not null then ${id}
@@ -24,6 +44,25 @@ view: users {
     value_format_name: decimal_1
   }
 
+  filter: user_name_filter {
+    type: string
+  }
+
+
+  filter: name_to_id {
+
+    # suggest_explore: users
+
+    # suggest_dimension: users.name
+
+    type: string
+    bypass_suggest_restrictions: yes
+    suggest_dimension: users.name
+
+    # sql:${TABLE}.id in (SELECT distinct users.id FROM `thelook.users`
+    #     where {% condition user_name_filter %} users.name {% endcondition %}) ;;
+
+    }
 
 
 }
