@@ -23,6 +23,12 @@
   #   sql: ${TABLE}.created_at ;;
   # }
 
+  dimension_group: duration_for_user {
+    type: duration
+    intervals: [day,month,year]
+    sql_start: ${created_date} ;;
+    sql_end: ${delivered_date} ;;
+  }
 
   dimension_group: created {
     group_label: "受注"
@@ -126,18 +132,30 @@
 
   measure: total_revenue {
     type: sum
-    sql: ${sale_price} ;;
+    sql: case when ${sale_price} is null then 0
+        else  ${sale_price} end;;
     # html: <font size="+5">{{ value }}</font>;;
     description: "売上の合計"
     # value_format_name: yen_0
     drill_fields: [products.brand,products.category,created_date,users.id]
   }
 
-  # measure: average_revenue_per_user {
-  #   type: number
-  #   sql: ${total_revenue}/${users.count_user} ;;
-  #   value_format_name: decimal_1
-  # }
+  measure: total_revenue_null_to_zero {
+    type: sum
+    sql: COALESCE(${sale_price},0);;
+    # html: <font size="+5">{{ value }}</font>;;
+    description: "売上の合計"
+    value_format: " $#,##0"
+    # value_format_name: yen_0
+    drill_fields: [products.brand,products.category,created_date,users.id]
+  }
+
+
+  measure: average_revenue_per_user {
+    type: number
+    sql: ${total_revenue}/${users.count_user} ;;
+    value_format_name: decimal_1
+  }
 
 
 

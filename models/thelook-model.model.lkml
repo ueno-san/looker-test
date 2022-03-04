@@ -1,5 +1,10 @@
 connection: "looker_demo_db"
 
+datagroup: aaaa {
+  sql_trigger: select cuurent_date() ;;
+  max_cache_age: "24 hours"
+}
+
 include: "/views/*.view.lkml"
 explore: order_items {
 
@@ -29,8 +34,12 @@ explore: order_items {
   # }
   label: "(1) オーダー、アイテム、ユーザー関連"
   view_label: "オーダー"
-  sql_always_where: ${order_items.status}="Complete" and {%condition users.user_name_filter%}${users.name}{% endcondition %} ;;
+  # sql_always_where: ${order_items.status}="Complete" and {%condition users.user_name_filter%}${users.name}{% endcondition %} ;;
 # always_filter: {{% conditon }}
+  access_filter: {
+    field: order_items.user_id
+    user_attribute: company_id
+  }
   join: users {
     view_label: "ユーザー"
     type: left_outer
@@ -99,3 +108,28 @@ explore: baseball {}
   #   sql_on: ${customer_lifetime_value.user_id}=${order_items.user_id} ;;
   #   relationship: many_to_one
   # }
+test: historic_revenue_is_accurate {
+  explore_source: order_items {
+    column: total_revenue {
+      field: order_items.total_revenue
+    }
+    column: count {field:order_items.count}
+    filters: [order_items.created_date: "2017"]
+  }
+  assert: revenue_is_expected_value {
+    expression: ${order_items.total_revenue} = 626000 ;;
+  }
+  assert: revenue_is_expected {
+    expression: ${order_items.count} = 1;;
+  }
+}
+test: status_is_not_null {
+  explore_source: order_items {
+    column: status {}
+    sorts: [order_items.status: desc]
+    limit: 1
+  }
+  assert: status_is_not_null {
+    expression: NOT is_null(${order_items.status}) ;;
+  }
+}
