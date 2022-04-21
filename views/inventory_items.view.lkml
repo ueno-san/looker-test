@@ -26,6 +26,7 @@ view: inventory_items {
       year
     ]
     sql: ${TABLE}.created_at ;;
+    datatype: date
   }
 
   dimension: product_brand {

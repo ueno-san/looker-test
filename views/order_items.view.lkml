@@ -157,6 +157,12 @@
     value_format_name: decimal_1
   }
 
+  measure: running_total_revenue {
+    type: running_total
+    sql: ${total_revenue} ;;
+  }
+
+
 
 
   parameter: select_timeframe {
