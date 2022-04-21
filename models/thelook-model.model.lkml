@@ -61,6 +61,12 @@ explore: order_items {
       relationship: many_to_one
   }
 
+  join: ndt_test {
+    type: left_outer
+    sql_on: ${ndt_test.returned_month} = ${order_items.returned_month} ;;
+    relationship: many_to_one
+  }
+
   join: pop_support {
 
     view_label: "PoP Support - Overrides and Tools"
