@@ -5,8 +5,15 @@ datagroup: aaaa {
   max_cache_age: "24 hours"
 }
 
+# datagroup: bbb {
+#   sql_trigger: select cuurent_date() ;;
+#   max_cache_age: "0 sec"
+# }
+
+
 include: "/views/*.view.lkml"
 explore: order_items {
+  group_label: "ZENKIGEN"
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;

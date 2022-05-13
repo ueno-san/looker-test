@@ -3,6 +3,7 @@
 
   dimension: order_item_id {
     primary_key: yes
+    hidden: yes
     type: number
     sql: ${TABLE}.id ;;
   }
@@ -32,6 +33,7 @@
 
   dimension_group: created {
     group_label: "受注"
+    description: "受注日です。"
     # label: "受注"
     type: time
     timeframes: [
@@ -64,13 +66,15 @@
   }
 
   dimension: inventory_item_id {
+    group_label: "inventory"
     type: number
     # hidden: yes
     sql: ${TABLE}.inventory_item_id ;;
   }
 
   dimension: order_id {
-    view_label: "inventory_items"
+    group_label: "inventory"
+    # view_label: "inventory_items"
     label: "オーダーID"
     type: number
     sql: ${TABLE}.order_id ;;
@@ -160,6 +164,7 @@
   measure: running_total_revenue {
     type: running_total
     sql: ${total_revenue} ;;
+
   }
 
 
