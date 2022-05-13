@@ -2,6 +2,7 @@ view: products {
   sql_table_name: `thelook.products` ;;
 
   dimension: id {
+    hidden: yes
     primary_key: yes
     type: number
     sql: ${TABLE}.id ;;
@@ -117,5 +118,9 @@ view: products {
   measure: count {
     type: count
     drill_fields: [id, name, distribution_centers.id, distribution_centers.name, inventory_items.count]
+  }
+
+  set: porduct {
+    fields: [name,brand,category]
   }
 }
