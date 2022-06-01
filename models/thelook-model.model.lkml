@@ -13,7 +13,7 @@ datagroup: aaaa {
 
 include: "/views/*.view.lkml"
 explore: order_items {
-  group_label: "ZENKIGEN"
+  # group_label: "ZENKIGEN"
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;

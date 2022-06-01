@@ -199,6 +199,10 @@
     {% endif %} ;;
   }
 
+  # measure: std_pop_count {
+  #   type:
+  # }
+
   set: visible_dimensions_and_mesures{
     fields: [
       order_id,
