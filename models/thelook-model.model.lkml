@@ -54,6 +54,8 @@ explore: order_items {
     relationship: many_to_one
   }
 
+  # extends: [extends_for]
+
   join: inventory_items {
     view_label: "在庫アイテム"
     type: left_outer
@@ -146,3 +148,16 @@ test: status_is_not_null {
     expression: NOT is_null(${order_items.status}) ;;
   }
 }
+
+# explore: extends_for {
+#   from: order_items
+#   view_name: order_items
+
+#   join: users {
+#     view_label: "ユーザー"
+#     type: left_outer
+#     sql_on: ${order_items.total_revenue} = ${users.id} ;;
+#     relationship: many_to_one
+#   }
+
+# }
