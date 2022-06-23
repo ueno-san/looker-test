@@ -13,7 +13,11 @@ datagroup: aaaa {
 
 include: "/views/*.view.lkml"
 explore: order_items {
-  # group_label: "ZENKIGEN"
+# <<<<<<< HEAD
+#   # group_label: "ZENKIGEN"
+# =======
+#   group_label: "ZENKIGEN"
+# >>>>>>> branch 'master' of https://github.com/ueno-san/looker-test.git
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;
