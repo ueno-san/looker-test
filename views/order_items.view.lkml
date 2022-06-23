@@ -154,6 +154,13 @@
     drill_fields: [products.brand,products.category,created_date,users.id]
   }
 
+  measure: sum_revenue_count {
+    type: number
+    sql: ${total_revenue} ;;
+    html: <html>{{total_revenue.rendered_value}}
+        </html>{{count.rendered_value}} ;;
+  }
+
 
   measure: average_revenue_per_user {
     type: number
@@ -198,6 +205,10 @@
     ${created_month}
     {% endif %} ;;
   }
+
+  # measure: std_pop_count {
+  #   type:
+  # }
 
   set: visible_dimensions_and_mesures{
     fields: [

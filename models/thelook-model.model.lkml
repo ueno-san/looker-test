@@ -13,7 +13,11 @@ datagroup: aaaa {
 
 include: "/views/*.view.lkml"
 explore: order_items {
-  group_label: "ZENKIGEN"
+# <<<<<<< HEAD
+#   # group_label: "ZENKIGEN"
+# =======
+#   group_label: "ZENKIGEN"
+# >>>>>>> branch 'master' of https://github.com/ueno-san/looker-test.git
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;
@@ -53,6 +57,8 @@ explore: order_items {
     sql_on: ${order_items.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
+
+  # extends: [extends_for]
 
   join: inventory_items {
     view_label: "在庫アイテム"
@@ -146,3 +152,16 @@ test: status_is_not_null {
     expression: NOT is_null(${order_items.status}) ;;
   }
 }
+
+# explore: extends_for {
+#   from: order_items
+#   view_name: order_items
+
+#   join: users {
+#     view_label: "ユーザー"
+#     type: left_outer
+#     sql_on: ${order_items.total_revenue} = ${users.id} ;;
+#     relationship: many_to_one
+#   }
+
+# }
