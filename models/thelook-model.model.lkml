@@ -1,3 +1,4 @@
+include: "/*.dashboard.lookml"
 connection: "looker_demo_db"
 
 datagroup: aaaa {
@@ -5,19 +6,16 @@ datagroup: aaaa {
   max_cache_age: "24 hours"
 }
 
-# datagroup: bbb {
-#   sql_trigger: select cuurent_date() ;;
-#   max_cache_age: "0 sec"
-# }
+access_grant: inventory {
+  user_attribute: accessible_departments
+  allowed_values: ["Inventory"]
+}
+
 
 
 include: "/views/*.view.lkml"
 explore: order_items {
-# <<<<<<< HEAD
-#   # group_label: "ZENKIGEN"
-# =======
-#   group_label: "ZENKIGEN"
-# >>>>>>> branch 'master' of https://github.com/ueno-san/looker-test.git
+
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;
@@ -77,6 +75,13 @@ explore: order_items {
   join: ndt_test {
     type: left_outer
     sql_on: ${ndt_test.returned_month} = ${order_items.returned_month} ;;
+    relationship: many_to_one
+  }
+
+  join: distribution_centers {
+    required_access_grants: [inventory]
+    type: left_outer
+    sql_on: ${products.distribution_center_id}=${distribution_centers.id} ;;
     relationship: many_to_one
   }
 
