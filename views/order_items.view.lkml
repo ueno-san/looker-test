@@ -157,8 +157,9 @@
   measure: sum_revenue_count {
     type: number
     sql: ${total_revenue} ;;
-    html: <html>{{total_revenue.rendered_value}}
-        </html>{{count.rendered_value}} ;;
+    value_format: " $#,##0"
+    html: {{rendered_value}}/
+       {{order_items.count._rendered_value}} ;;
   }
 
 
@@ -172,6 +173,15 @@
     type: running_total
     sql: ${total_revenue} ;;
 
+  }
+
+  measure: multiple_values {
+    type: number
+    sql: ${total_revenue} ;;
+    html: <html>
+    Home Page visit:{{total_revenue_null_to_zero._rendered_value}}<br>
+    Account Page Visit:{{count._rendered_value}}
+    </html>;;
   }
 
 
