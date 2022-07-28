@@ -32,7 +32,7 @@
   }
 
   dimension_group: created {
-    group_label: "受注"
+    group_label: "01.受注"
     description: "受注日です。"
     # label: "受注"
     type: time
@@ -51,7 +51,7 @@
   }
 
   dimension_group: delivered {
-    label: "到着"
+    group_label: "02.到着"
     type: time
     timeframes: [
       raw,
@@ -66,14 +66,14 @@
   }
 
   dimension: inventory_item_id {
-    group_label: "inventory"
+    group_label: "05.inventory"
     type: number
     # hidden: yes
     sql: ${TABLE}.inventory_item_id ;;
   }
 
   dimension: order_id {
-    group_label: "inventory"
+    group_label: "05.inventory"
     # view_label: "inventory_items"
     label: "オーダーID"
     type: number
@@ -81,7 +81,7 @@
   }
 
   dimension_group: returned {
-    label: "返品"
+    group_label: "03.返品"
     type: time
     timeframes: [
       raw,
@@ -96,13 +96,14 @@
   }
 
   dimension: sale_price {
+    hidden: yes
     label: "売上"
     type: number
     sql: ${TABLE}.sale_price ;;
   }
 
   dimension_group: shipped {
-    label: "出荷"
+    group_label:"04.出荷"
     type: time
     timeframes: [
       raw,

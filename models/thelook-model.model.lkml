@@ -3,7 +3,8 @@ connection: "looker_demo_db"
 
 datagroup: aaaa {
   sql_trigger: select cuurent_date() ;;
-  max_cache_age: "24 hours"
+  # max_cache_age: "24 hours"
+  max_cache_age: "1 seconds"
 }
 
 access_grant: inventory {
