@@ -1,5 +1,5 @@
 view: employee_master {
-  sql_table_name: `tsutomuueno-looker-training.thelook.employee_master`
+  sql_table_name: `thelook.employee_master`
     ;;
 
   dimension: email {

@@ -1,10 +1,10 @@
 include: "/*.dashboard.lookml"
-connection: "looker_demo_db"
+connection: "looker-demo-bigquery"
 
 datagroup: aaaa {
   sql_trigger: select cuurent_date() ;;
   # max_cache_age: "24 hours"
-  max_cache_age: "1 seconds"
+  max_cache_age: "0 seconds"
 }
 
 access_grant: inventory {
@@ -12,7 +12,15 @@ access_grant: inventory {
   allowed_values: ["Inventory"]
 }
 
+explore: employee_master {
+  access_filter: {
+    field: division
+    user_attribute: company_id
+  }
+}
 
+
+persist_with: aaaa
 
 include: "/views/*.view.lkml"
 explore: order_items {
@@ -83,6 +91,13 @@ explore: order_items {
     required_access_grants: [inventory]
     type: left_outer
     sql_on: ${products.distribution_center_id}=${distribution_centers.id} ;;
+    relationship: many_to_one
+  }
+
+  join: user_analysis_mau_cnt_rtn {
+    type: left_outer
+    sql_on: ${order_items.created_month} = ${user_analysis_mau_cnt_rtn.created_month}
+            and ${order_items.user_id} = ${user_analysis_mau_cnt_rtn.user_id};;
     relationship: many_to_one
   }
 
@@ -158,6 +173,8 @@ test: status_is_not_null {
     expression: NOT is_null(${order_items.status}) ;;
   }
 }
+
+explore: population {}
 
 # explore: extends_for {
 #   from: order_items
