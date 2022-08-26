@@ -95,6 +95,31 @@ view: products {
       ;;
   }
 
+  parameter: select_product_detail_string {
+    type: string
+    default_value: "department"
+    allowed_value: {
+      value: "department"
+      label: "Department"
+    }
+    allowed_value: {
+      value: "category"
+      label: "Category"
+    }
+    allowed_value: {
+      value: "brand"
+      label: "Brand"
+    }
+  }
+
+  dimension: product_hierachy_string {
+    type: string
+    sql: {% if select_product_detail_string._parameter_value == "'department'"%}${department}
+        {% elsif select_product_detail_string._parameter_value == "'category'"%}${category}
+        {%else%}${brand}
+        {%endif%};;
+  }
+
   filter: choose_a_category_to_compare {
     type: string
     suggest_explore: inventory_items

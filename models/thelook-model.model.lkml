@@ -54,10 +54,10 @@ explore: order_items {
   view_label: "オーダー"
   # sql_always_where: ${order_items.status}="Complete" and {%condition users.user_name_filter%}${users.name}{% endcondition %} ;;
 # always_filter: {{% conditon }}
-  access_filter: {
-    field: order_items.user_id
-    user_attribute: company_id
-  }
+  # access_filter: {
+  #   field: order_items.user_id
+  #   user_attribute: company_id
+  # }
   join: users {
     view_label: "ユーザー"
     type: left_outer
