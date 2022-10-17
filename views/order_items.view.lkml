@@ -31,6 +31,30 @@
     sql_end: ${delivered_date} ;;
   }
 
+  # dimension_group: created2 {
+  #   group_label: "01.受注"
+  #   description: "受注日です。"
+  #   # label: "受注"
+  #   type: time
+  #   timeframes: [
+  #     raw,
+  #     time,
+  #     date,
+  #     week,
+  #     month,
+  #     month_name,
+  #     quarter,
+  #     year
+  #   ]
+  #   sql: ${TABLE}.created_at ;;
+  #   convert_tz: yes
+  # }
+
+  dimension: created_mon {
+    type: date_month
+    sql: ${TABLE}.created_at ;;
+  }
+
   dimension_group: created {
     group_label: "01.受注"
     description: "受注日です。"
@@ -41,14 +65,60 @@
       time,
       date,
       week,
+      day_of_week,
+      day_of_month,
+      day_of_year,
       month,
       month_name,
       quarter,
       year
     ]
     sql: ${TABLE}.created_at ;;
+    # datatype: timestamp
     convert_tz: yes
   }
+
+  dimension: wtd_only {
+    group_label: "To-Date Filters"
+    label: "WTD"
+    type: yesno
+    sql: EXTRACT(DAYOFWEEK FROM ${created_raw}) <= EXTRACT(DAYOFWEEK FROM CURRENT_DATE('Asia/Tokyo'));;
+  }
+
+  dimension: mtd_only {
+    group_label: "To-Date Filters"
+    label: "MTD"
+    type: yesno
+    sql: EXTRACT(DAY FROM ${created_raw}) <= EXTRACT(DAY FROM CURRENT_DATE('Asia/Tokyo'));;
+  }
+
+  dimension: ytd_only {
+    group_label: "To-Date Filters"
+    label: "YTD"
+    type: yesno
+    sql: EXTRACT(DAYOFYEAR FROM ${created_raw}) <= EXTRACT(DAYOFYEAR FROM CURRENT_DATE('Asia/Tokyo'));;
+  }
+
+
+
+  parameter: select_month {
+    type: number
+    default_value: "1"
+    allowed_value: {
+      label: "1ヶ月"
+      value: "1"
+    }
+    allowed_value: {
+      label: "2ヶ月"
+      value: "2"
+    }
+    allowed_value: {
+      label: "3ヶ月"
+      value: "3"
+    }
+  }
+
+
 
   dimension_group: delivered {
     group_label: "02.到着"
@@ -130,6 +200,20 @@
     sql: ${TABLE}.user_id ;;
   }
 
+  dimension: start_date {
+    label: "月の初日"
+    type: date
+    datatype: date
+    sql:date_trunc(${created_raw},month)  ;;
+  }
+
+  dimension:last_date  {
+    label: "月の最終日"
+    datatype: date
+    type: date
+    sql: last_day(${created_raw},month) ;;
+  }
+
   measure: count {
     type: count
     drill_fields: [detail*]
@@ -137,19 +221,65 @@
 
   measure: total_revenue {
     type: sum
-    sql: case when ${sale_price} is null then 0
-        else  ${sale_price} end;;
+    sql: ${sale_price} ;;
+    # sql: case when ${sale_price} is null then 0
+    #     else  ${sale_price} end;;
     #html: <font size="+5">{{ value }}</font>;;
-    html: {% if value >= 1000 and value < 1000000 %}{{value  | divided_by: 1000 | round:1}}k
-          {% elsif value >= 1000000 and value < 1000000000 %}{{value | divided_by: 1000000 | round:1}}m
-          {% elsif value > 1000000000 %}{{value| divided_by: 1000000000 | round:1}}b
-          {% else %}{{rendered_value}}
-          {% endif %};;
-
-    description: "売上の合計"
+    # html:  ;;
+    # html: {% if value >= 1000 and value < 1000000 %}{{value  | divided_by: 1000 | round:1}}k
+    #       {% elsif value >= 1000000 and value < 1000000000 %}{{value | divided_by: 1000000 | round:1}}m
+    #       {% elsif value > 1000000000 %}{{value| divided_by: 1000000000 | round:1}}b
+    #       {% else %}{{rendered_value}}
+    #       {% endif %};;
+    # html: {% if value >= 1000 and value < 1000000 %}
+    #       <b><p style="color: black; background-color: #dc7350; margin: 0; border-radius: 5px; text-align:center">{{ value }}</p></b>
+    #       {% elsif value >= 1000000 and value < 1000000000 %}
+    #       <b><p style="color: black; background-color: #e9b404; margin: 0; border-radius: 5px; text-align:center">{{ value }}</p></b>
+    #       {% elsif value > 1000000000 %}
+    #       <b><p style="color: black; background-color: #49cec1; margin: 0; border-radius: 5px; text-align:center">{{ value }}</p></b>
+    #       {% else %}{{rendered_value}}
+    #       {% endif %};;
+    # description: "売上の合計"
+    #value_format_name: yen_0
+    # drill_fields: [products.brand,products.category,created_date,users.id]
+  }
+  measure: total_revenue_over_2000000 {
+    type: number
+    sql: case when ${total_revenue} >= 10000 then ${total_revenue}
+          else null end;;
+    description: "売上の合計 200,000以上"
     #value_format_name: yen_0
     drill_fields: [products.brand,products.category,created_date,users.id]
+    html: revenue:{{rendered_value}}<br>
+          count:{{count._rendered_value}};;
   }
+
+  measure: total_revenue_under_2000000 {
+    type: number
+    sql: case when ${total_revenue} < 10000 then ${total_revenue}
+      else  null end;;
+    description: "売上の合計 200,000未満"
+    #value_format_name: yen_0
+    drill_fields: [products.brand,products.category,created_date,users.id]
+    html: revenue:{{rendered_value}}<br>
+    count:{{count._rendered_value}};;
+  }
+
+  measure: max_last_date {
+    type: date
+    sql: max(${last_date}) ;;
+    datatype: date
+  }
+
+  measure: max_first_date {
+    type: date
+    sql: max(${start_date})
+       ;;
+    datatype: date
+  }
+
+
+
 
   measure: total_revenue_null_to_zero {
     type: sum
@@ -173,7 +303,7 @@
   measure: average_revenue_per_user {
     type: number
     sql: ${total_revenue}/${users.count_user} ;;
-    value_format_name: decimal_1
+    value_format_name: percent_1
   }
 
   measure: running_total_revenue {
@@ -223,6 +353,48 @@
     {% endif %} ;;
   }
 
+  parameter: select_measure {
+    type: string
+    allowed_value: {
+      label: "売上"
+      value: "total_revenue"
+    }
+    allowed_value: {
+      label: "一人あたりの売上"
+      value: "average_revenue_per_user"
+    }
+    default_value: "total_revenue"
+  }
+
+  measure: selected_measure {
+    type: number
+    sql:     {% if select_measure._parameter_value == "'total_revenue'" %}
+    ${total_revenue}
+    {% elsif select_measure._parameter_value == "'average_revenue_per_user'" %}
+    ${average_revenue_per_user}
+    {% else %}
+    0
+    {% endif %}  ;;
+    html:
+    {%if  select_measure._parameter_value == "'total_revenue'" %}
+    ${{rendered_value}}
+    {%elsif select_measure._parameter_value == "'average_revenue_per_user'" %}
+    {{rendered_value}}%
+    {%else%}
+    {{rendered_value}}
+    {%endif%};;
+    # value_format_name: percent_0
+  }
+
+  measure: last_year_ {
+    type: sum
+    sql: ${sale_price} ;;
+    html: {{rendered_value}} ;;
+  }
+
+
+
+
   # measure: std_pop_count {
   #   type:
   # }
@@ -238,6 +410,27 @@
       created_week
     ]
   }
+
+  set: set_created{
+    fields: [
+      created_month,
+      created_month_name,
+      created_date,
+      created_quarter,
+      created_week,
+      created_raw,
+      created_time,
+      created_year
+    ]
+  }
+
+
+  # set: prediction_test {
+  #   fields: [
+  #     ALL_FIELDS*
+
+  #   ]
+  # }
 
 
   # ----- Sets of fields for drilling ------

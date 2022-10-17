@@ -4,7 +4,7 @@ connection: "looker-demo-bigquery"
 datagroup: aaaa {
   sql_trigger: select cuurent_date() ;;
   # max_cache_age: "24 hours"
-  max_cache_age: "0 seconds"
+  max_cache_age: "10 hours"
 }
 
 access_grant: inventory {
@@ -23,8 +23,59 @@ explore: employee_master {
 persist_with: aaaa
 
 include: "/views/*.view.lkml"
-explore: order_items {
 
+explore: calendar {
+  fields: [ALL_FIELDS*,-order_items.average_revenue_per_user]
+  label: "予測テスト"
+  join: order_items {
+    type: left_outer
+    sql_on: ${calendar.filter_date_date} <= ${order_items.created_raw} and
+            ${calendar.filter_date_date} >= ${order_items.created_raw} ;;
+    relationship: one_to_many
+  }
+  join: pop_support {
+
+    view_label: "PoP Support - Overrides and Tools"
+    # pop_supportビューではなく、ここでこのExploreで使用するためにビューラベルを更新します。これをPOP日付のビューラベルに合わせることができます
+
+    relationship:one_to_one
+    # ここでは意図的にファンアウトさせます。そのため、one_to_one のままにしておきます
+
+    sql:{% if pop_support.periods_ago._in_query%}LEFT JOIN pop_support on 1=1{%endif%};;
+
+    # 楔となるピボットフィールド（periods_ago）が選択されている場合にのみprior_periodが含まれ、結合及びファンアウトされるようにします。この安全対策により、ユーザーがPop SupportでPoPパラメーターを選択したが、実際にはPoPのピボットフィールドを選択しなかった場合に、結合によってファンアウトが発生しないことが保証されます。
+
+  }
+
+}
+
+explore:inventory  {
+  view_name: inventory_items
+  join: products {
+    view_label: "プロダクト"
+    type: left_outer
+    sql_on: ${inventory_items.product_id} = ${products.id} ;;
+    relationship: many_to_one
+  }
+
+}
+
+explore: order_items {
+  view_name: order_items
+  extends: [inventory]
+
+  # sql_always_where:
+  # {%if order_items.select_month._is_selected%}
+  # ${created_raw}>=date_sub(current_date,interval {%parameter order_items.select_month%} month)
+  # {%else%}1=1
+  # {%endif%};;
+  sql_always_where:
+  {%if order_items.select_month._is_filtered%}
+  ${created_raw}>=date_sub(current_date,interval {%parameter order_items.select_month%} month)
+  {%else%}1=1
+  {%endif%};;
+
+# fields: [ALL_FIELDS*,-order_items.created_date]
 
   #テストユーザを除く
   # sql_always_where: ${user_id}<>'0' ;;
@@ -74,12 +125,12 @@ explore: order_items {
     relationship: many_to_one
   }
   # extends: [inventory_items]
-  join: products {
-    view_label: "プロダクト"
-      type: left_outer
-      sql_on: ${inventory_items.product_id} = ${products.id} ;;
-      relationship: many_to_one
-  }
+  # join: products {
+  #   view_label: "プロダクト"
+  #     type: left_outer
+  #     sql_on: ${inventory_items.product_id} = ${products.id} ;;
+  #     relationship: many_to_one
+  # }
 
   join: ndt_test {
     type: left_outer
@@ -88,7 +139,7 @@ explore: order_items {
   }
 
   join: distribution_centers {
-    required_access_grants: [inventory]
+    # required_access_grants: [inventory]
     type: left_outer
     sql_on: ${products.distribution_center_id}=${distribution_centers.id} ;;
     relationship: many_to_one
@@ -173,6 +224,18 @@ test: status_is_not_null {
     expression: NOT is_null(${order_items.status}) ;;
   }
 }
+
+# named_value_format: dynamic_value_format {
+#   value_format:
+#     {%if  select_measure._parameter_value == "'total_revenue'" %}
+#     "usd_0"
+#     {%elsif select_measure._parameter_value == "'average_revenue_per_user'" %}
+#     "percent_0"
+#     {%else%}
+#     "decimal_0"
+#     {%endif%}
+
+# }
 
 explore: population {}
 
