@@ -217,11 +217,54 @@
   measure: count {
     type: count
     drill_fields: [detail*]
+    value_format: "###,##0"
   }
+
+  measure: total_revenue_1 {
+    type: sum
+    sql: ${sale_price} ;;
+    value_format: "###,##0"
+  }
+
+  measure: total_revenue_2 {
+    type: sum
+    sql: ${sale_price} ;;
+    value_format: "###,##0.00"
+  }
+
+  parameter: select_measure_da {
+    type: unquoted
+    allowed_value: {
+      label: "measure1"
+      value: "measure1"
+    }
+    allowed_value: {
+      label: "measure2"
+      value: "measure2"
+    }
+  }
+
+  measure: selected_measure_da {
+    type: number
+    sql: {% if select_measure_da._parameter_value=='measure1'%}
+          ${count}
+          {% else %}
+          ${total_revenue_2}
+          {% endif %};;
+    # html:{% if select_measure_da._parameter_value=='measure1'%}
+    #       {{count._rendered_value}
+    #       {% else %}
+    #       {{total_revenue_2._rendered_value}}
+    #       {% endif %}  ;;
+  }
+
+
+
 
   measure: total_revenue {
     type: sum
     sql: ${sale_price} ;;
+    value_format: "###,##0.00"
     # sql: case when ${sale_price} is null then 0
     #     else  ${sale_price} end;;
     #html: <font size="+5">{{ value }}</font>;;
@@ -286,7 +329,8 @@
     sql: COALESCE(${sale_price},0);;
     # html: <font size="+5">{{ value }}</font>;;
     description: "売上の合計"
-    value_format: " $#,##0"
+    # value_format: " $#,##0"
+    html: {{ value   | number_with_precision: precision: 2}}  ;;
     # value_format_name: yen_0
     drill_fields: [products.brand,products.category,created_date,users.id]
   }
@@ -301,14 +345,17 @@
 
 
   measure: average_revenue_per_user {
-    type: number
-    sql: ${total_revenue}/${users.count_user} ;;
-    value_format_name: percent_1
+    type: sum
+    # sql: ${total_revenue}/${users.count_user} ;;
+    sql: 0.00 ;;
+    # value_format_name: percent_1
+    value_format: "###,##0.00"
   }
 
   measure: running_total_revenue {
     type: running_total
     sql: ${total_revenue} ;;
+    value_format: "###,##0.00"
 
   }
 
@@ -377,11 +424,11 @@
     {% endif %}  ;;
     html:
     {%if  select_measure._parameter_value == "'total_revenue'" %}
-    ${{rendered_value}}
+    {{total_revenue._rendered_value}}
     {%elsif select_measure._parameter_value == "'average_revenue_per_user'" %}
-    {{rendered_value}}%
+    {{average_revenue_per_user._rendered_value}}
     {%else%}
-    {{rendered_value}}
+    {{total_revenue._rendered_value}}
     {%endif%};;
     # value_format_name: percent_0
   }
@@ -389,7 +436,8 @@
   measure: last_year_ {
     type: sum
     sql: ${sale_price} ;;
-    html: {{rendered_value}} ;;
+    value_format: "###,###.00"
+    # html: {{rendered_value}} ;;
   }
 
 

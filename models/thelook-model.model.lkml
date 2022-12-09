@@ -4,7 +4,7 @@ connection: "looker-demo-bigquery"
 datagroup: aaaa {
   sql_trigger: select cuurent_date() ;;
   # max_cache_age: "24 hours"
-  max_cache_age: "10 hours"
+  max_cache_age: "0 seconds"
 }
 
 access_grant: inventory {
@@ -252,3 +252,26 @@ explore: population {}
 #   }
 
 # }
+explore: v_cf_products_redistribution {
+  join: v_cf_solutions {
+    type: full_outer
+    sql_on: ${v_cf_products_redistribution.cash_flow_id} = ${v_cf_solutions.cash_flow_id}
+          and ${v_cf_products_redistribution.cash_flow_name} = ${v_cf_solutions.cash_flow_name}
+          and ${v_cf_products_redistribution.fiscal_year} = ${v_cf_solutions.fiscal_year}
+          and {%condition v_cf_products_redistribution.filter_cash_flow_name %}${v_cf_products_redistribution.cash_flow_name}{%endcondition%}
+          ;;
+    relationship: one_to_one
+  }
+  join: v_distribution_costs_from_cf {
+    type: full_outer
+    sql_on: ${v_distribution_costs_from_cf.cash_flow_id}= ${v_cf_products_redistribution.cash_flow_id}
+          and ${v_distribution_costs_from_cf.cash_flow_name} = ${v_cf_products_redistribution.cash_flow_name}
+          and ${v_distribution_costs_from_cf.fiscal_year} = ${v_cf_products_redistribution.fiscal_year}
+          and {%condition v_cf_products_redistribution.filter_cash_flow_name%}${v_cf_products_redistribution.cash_flow_name}{%endcondition%}
+          ;;
+    relationship: one_to_one
+  }
+}
+
+
+explore: boxplot {}
